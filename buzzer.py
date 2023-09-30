@@ -42,6 +42,3 @@ class Buzzer():
 
         # Cleanup the PWM
         self.buzzer_pwm.deinit()
-        
-alarm = Buzzer(0)
-alarm.alert(constants.ALARM_SUCCESS)
