@@ -1,5 +1,9 @@
 refer: https://myengineeringstuffs.com/2023/02/rc522-rfid-reader-module-interfacing-with-raspberry-pi-pico/ 
 
+servo motors:
+- https://www.youtube.com/watch?v=l_sVz-J6jBE
+- https://core-electronics.com.au/guides/getting-started-with-servos-examples-with-raspberry-pi-pico/
+
 todo:
 
 esp8266: https://www.youtube.com/watch?v=iP90jU3_zVs 

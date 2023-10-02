@@ -1,6 +1,7 @@
 from machine import Pin, SPI
 from os import uname
  
+ 
 class MFRC522:
  
     DEBUG = False
@@ -33,9 +34,9 @@ class MFRC522:
  
         if board == 'WiPy' or board == 'LoPy' or board == 'FiPy':
             self.spi = SPI(0)
-            self.spi.init(SPI.MASTER, baudrate=1000000, pins=(self.sck, self.mosi, self.miso)) # type: ignore
+            self.spi.init(SPI.MASTER, baudrate=1000000, pins=(self.sck, self.mosi, self.miso))
         elif (board == 'esp8266') or (board == 'esp32'):
-            self.spi = SPI(baudrate=100000, polarity=0, phase=0, sck=self.sck, mosi=self.mosi, miso=self.miso)  # type: ignore
+            self.spi = SPI(baudrate=100000, polarity=0, phase=0, sck=self.sck, mosi=self.mosi, miso=self.miso)
             self.spi.init()
         elif board == 'rp2':
             self.spi = SPI(spi_id,baudrate=baudrate,sck=self.sck, mosi= self.mosi, miso= self.miso)
@@ -196,6 +197,7 @@ class MFRC522:
  
         return stat, recv
  
+    
     def PcdSelect(self, serNum,anticolN):
         backData = []
         buf = []
@@ -216,6 +218,7 @@ class MFRC522:
             return  1
         else:
             return 0
+    
     
     def SelectTag(self, uid):
         byte5 = 0
@@ -239,6 +242,9 @@ class MFRC522:
         s= s+ "]"
         return s
         
+  
+            
+    
     def SelectTagSN(self):
         valid_uid=[]
         (status,uid)= self.anticoll(self.PICC_ANTICOLL1)
@@ -273,7 +279,7 @@ class MFRC522:
                 if status != self.OK:
                     return (self.ERR,[])
                 if self.DEBUG: print("Anticol(3) {}".format(uid))
-                if self.MFRC522_PcdSelect(uid,self.PICC_ANTICOLL3) == 0:  # type: ignore
+                if self.MFRC522_PcdSelect(uid,self.PICC_ANTICOLL3) == 0:
                     return (self.ERR,[])
                 if self.DEBUG: print("PcdSelect(3) {}".format(uid))
         valid_uid.extend(uid[0:5])
@@ -282,6 +288,11 @@ class MFRC522:
         
         return (self.OK , valid_uid[:len(valid_uid)-1])
         #return (self.OK , valid_uid)
+    
+    
+   
+       
+    
  
     def auth(self, mode, addr, sect, ser):
         return self._tocard(0x0E, [mode, addr] + sect + ser[:4])[0]
@@ -294,6 +305,7 @@ class MFRC522:
             status = self.auth(self.AUTHENT1B, addr, keyB, uid)
         return status
        
+ 
     def stop_crypto1(self):
         self._cflags(0x08, 0x08)
  
@@ -321,6 +333,7 @@ class MFRC522:
             if not (stat == self.OK) or not (bits == 4) or not ((recv[0] & 0x0F) == 0x0A):
                 stat = self.ERR
         return stat
+ 
  
     def writeSectorBlock(self,uid, sector, block, data, keyA=None, keyB = None):
         absoluteBlock =  sector * 4 + (block % 4)
@@ -361,7 +374,7 @@ class MFRC522:
                     print("")
             else:
                 break
-        if status == self.ERR:  # type: ignore
+        if status == self.ERR:
             print("Authentication error")
             return self.ERR
         return self.OK

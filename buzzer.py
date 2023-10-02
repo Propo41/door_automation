@@ -5,6 +5,7 @@ import constants
 class Buzzer():
     def __init__(self, pin):
         # Define the PWM output pin
+        print("init alarm")
         buzzer_pin = machine.Pin(pin)
         self.buzzer_pwm = machine.PWM(buzzer_pin)
         
@@ -25,6 +26,7 @@ class Buzzer():
         # define the number of beeps
         beep_count = 1
         if(type == constants.ALARM_SUCCESS):
+            print("sounding alarm")
             alarm_frequency = 100
             beep_duration_ms = 200 
             pause_duration_ms = 100

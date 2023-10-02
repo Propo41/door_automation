@@ -9,11 +9,11 @@ from mfrc522 import MFRC522
 is_door_open = False
 is_loading = False
 
-button_open = Pin(14, Pin.IN, Pin.PULL_DOWN)
-button_close = Pin(14, Pin.IN, Pin.PULL_DOWN)
+button_open = Pin(11, Pin.IN, Pin.PULL_DOWN)
+button_close = Pin(15, Pin.IN, Pin.PULL_DOWN)
 button_reset = Pin(14, Pin.IN, Pin.PULL_DOWN)
 
-led_power = Led(13)
+led_power = Led(25)
 led_loading = Led(13)
 led_door_open = Led(13)
 
@@ -29,72 +29,83 @@ def scan_rfid():
     if card_status == rfid_reader.OK:
         (card_status, card_id) = rfid_reader.SelectTagSN()
         if card_status == rfid_reader.OK:
-            rfid_card = int.from_bytes(bytes(card_id), byteorder='little', signed=False)
+            rfid_card = int.from_bytes(bytes(card_id),"little", False)  # type: ignore
+            print("Detected Card : "+ str(rfid_card))
             return str(rfid_card)
     return False
+
  
 def open_door():
-    pass
+    global is_loading
+    global is_door_open
+    
+    if (is_door_open == False):
+        logger.log("Door opening..")
+        is_loading = True
+        led_loading.blink()
+        time.sleep(1)
+                    
+        # todo: rotate motor
+                    
+        led_loading.stop_blinking()
+        led_door_open.turn_on()
+        is_loading = False
+        alarm.alert(constants.DOOR_UNLOCKED)
+        is_door_open = True
+        time.sleep(2)
+        logger.log("Door opened!")
+    else:
+        logger.log("Door already opened!")
+        alarm.alert(constants.ALARM_SUCCESS)
 
 def close_door():
-    pass
+    global is_loading
+    global is_door_open
+    
+    if(is_door_open == True):
+        logger.log("Door closing...")
+        is_loading = True
+        led_loading.blink()
+                
+        # todo: rotate motor
+                
+        led_loading.stop_blinking()
+        led_door_open.turn_off()
+        is_loading = False
+        alarm.alert(constants.DOOR_LOCKED)
+        is_door_open = False
+        time.sleep(2)
+        logger.log("Door closed!")
+    else:
+        logger.log("Door already closed!")
+        alarm.alert(constants.ALARM_ALREADY_PROCESSED)
 
 def reset_system():
-    pass
+    global is_loading
+    global is_door_open
+    
+    is_loading = True
+    alarm.alert(constants.ALARM_LOADING)
+    led_loading.blink()
+    # todo: reset system
+    led_loading.stop_blinking()
+    is_loading = True
 
 if __name__ == '__main__':
-    led_power.turn_on()  
     logger.log("App started..")
+    led_power.turn_on()
+
     while True:
         if button_open.value() and not is_loading:
-            if (is_door_open == False):
-                logger.log("Door opening..")
-                is_loading = True
-                led_loading.blink()
-                
-                open_door()
-                
-                led_loading.stop_blinking()
-                led_door_open.turn_on()
-                is_loading = False
-                alarm.alert(constants.DOOR_UNLOCKED)
-                is_door_open = True
-                time.sleep(2)
-                logger.log("Door opened!")
-            else:
-                logger.log("Door already opened!")
-                alarm.alert(constants.ALARM_ALREADY_PROCESSED)
+            open_door()
         elif button_close.value() and not is_loading:
-            if(is_door_open == True):
-                logger.log("Door closing...")
-                is_loading = True
-                led_loading.blink()
-                
-                close_door()
-                
-                led_loading.stop_blinking()
-                led_door_open.turn_off()
-                is_loading = False
-                alarm.alert(constants.DOOR_LOCKED)
-                is_door_open = False
-                time.sleep(2)
-                logger.log("Door closed!")
-            else:
-                logger.log("Door already closed!")
-                alarm.alert(constants.ALARM_ALREADY_PROCESSED)
+            close_door()
         elif button_reset.value() and not is_loading:
-            is_loading = True
-            alarm.alert(constants.ALARM_LOADING)
-            led_loading.blink()
-            reset_system()
-            led_loading.stop_blinking()
-            is_loading = True
-            
+            reset_system()   
         else:
-            scanned_card_id = scan_rfid()
-            if(scanned_card_id):
-                print("Detected Card : "+ str(scanned_card_id))
-                # TODO
-                pass
+            card_id = scan_rfid()
+            if(type(scan_rfid)=="str"):
+                print("card detected")
+
 
 logger.close()

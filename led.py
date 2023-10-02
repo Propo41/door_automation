@@ -2,7 +2,8 @@ from machine import Pin, Timer
 
 class Led():
     def __init__(self, pin):
-        self.led = Pin(13, Pin.OUT)
+        print(pin)
+        self.led = Pin(pin, Pin.OUT)
         self.timer = Timer()
         
     def turn_on(self):
